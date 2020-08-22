@@ -12,10 +12,14 @@ class MovieListViewController: UIViewController {
     
     //injected from SceneDelegate when scene is created at app launch
     var networkManager: NetworkManager!
+    
+    //instantiated in viewDidLoad()
+    var viewModel: MovieListViewModel!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        
+        viewModel = MovieListViewModel(networkMgr: networkManager)
     }
 
 
