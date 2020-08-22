@@ -9,6 +9,9 @@
 import UIKit
 
 class MovieListViewController: UIViewController {
+    
+    //injected from SceneDelegate when scene is created at app launch
+    var networkManager: NetworkManager!
 
     override func viewDidLoad() {
         super.viewDidLoad()

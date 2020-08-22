@@ -14,6 +14,7 @@
 		2142AAD524F1683F0054DAD7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2142AAD424F1683F0054DAD7 /* Assets.xcassets */; };
 		2142AAD824F1683F0054DAD7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2142AAD624F1683F0054DAD7 /* LaunchScreen.storyboard */; };
 		2142AAE324F1683F0054DAD7 /* MovieMage02Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2142AAE224F1683F0054DAD7 /* MovieMage02Tests.swift */; };
+		2142AAF424F181400054DAD7 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2142AAF324F181400054DAD7 /* NetworkManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,6 +39,7 @@
 		2142AADE24F1683F0054DAD7 /* MovieMage02Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MovieMage02Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2142AAE224F1683F0054DAD7 /* MovieMage02Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieMage02Tests.swift; sourceTree = "<group>"; };
 		2142AAE424F1683F0054DAD7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2142AAF324F181400054DAD7 /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -126,6 +128,7 @@
 		2142AAF024F175C30054DAD7 /* NetworkManager */ = {
 			isa = PBXGroup;
 			children = (
+				2142AAF324F181400054DAD7 /* NetworkManager.swift */,
 			);
 			path = NetworkManager;
 			sourceTree = "<group>";
@@ -248,6 +251,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2142AAF424F181400054DAD7 /* NetworkManager.swift in Sources */,
 				2142AAD024F1683C0054DAD7 /* MovieListViewController.swift in Sources */,
 				2142AACC24F1683C0054DAD7 /* AppDelegate.swift in Sources */,
 				2142AACE24F1683C0054DAD7 /* SceneDelegate.swift in Sources */,
