@@ -20,6 +20,7 @@ class MovieListViewController: UIViewController {
         super.viewDidLoad()
         
         viewModel = MovieListViewModel(networkMgr: networkManager)
+        viewModel.printMoviesInfo()
     }
 
 
