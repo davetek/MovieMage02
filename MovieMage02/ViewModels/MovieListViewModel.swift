@@ -17,7 +17,9 @@ class MovieListViewModel {
     }
     
     func printMoviesInfo() {
-        networkManager.getMoviesInfo()
+//        networkManager.getMoviesInfo()
+        networkManager.getMoviesInfoWithToken()
     }
+    
     
 }

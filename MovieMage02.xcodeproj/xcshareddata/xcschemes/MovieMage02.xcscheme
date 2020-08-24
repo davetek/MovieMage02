@@ -67,6 +67,11 @@
             isEnabled = "NO">
          </EnvironmentVariable>
          <EnvironmentVariable
+            key = "TMAT"
+            value = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJlOGI1YjM4MGE3NTY0NTYyZDY0YTIwMWE3YmU2MDRjYSIsInN1YiI6IjVmNDE1Mjc0MDI4ZjE0MDAzMjYwNDI4ZiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.A8ifasDXgNrwsPyYaxV0FgBdswYiwAHY8yqgvAY3vqs"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
             key = "TMAK"
             value = "e8b5b380a7564562d64a201a7be604ca"
             isEnabled = "YES">
