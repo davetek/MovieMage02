@@ -20,7 +20,10 @@ class MovieListViewController: UIViewController {
         super.viewDidLoad()
         
         viewModel = MovieListViewModel(networkMgr: networkManager)
-        viewModel.printMoviesInfo()
+//        viewModel.printMoviesInfo()
+//        viewModel.getMoviesInfo()
+        
+        viewModel.searchForMovies(matching: "harry potter", page: 1)
     }
 
 

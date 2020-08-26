@@ -16,27 +16,47 @@ class MovieListViewModel {
         networkManager = networkMgr
     }
     
-    func printMoviesInfo() {
-//        let queryPath = "/3/movie/nnn"
-        let queryPath = "/3/movie/530"
-        networkManager.getMoviesInfo(urlPathString: queryPath) { [weak self] result in
-            switch result {
-            case .success(let retrievedData):
-                if let data = retrievedData.0 {
-                    if let responseCode = retrievedData.1 {
-                        print("received response code: \(responseCode)")
-                        print("received data: \(data)")
-                    } else {
-                        print("received data: \(data)")
-                    }
-                } else if let responseCode = retrievedData.1 {
-                    print("received response code: \(responseCode)")
+    func getMoviesInfo() {
+        var queryPath = "/3/movie/550"
+        queryPath = "/3/movie/nnn"
+        networkManager.getMoviesInfo(urlPathString: queryPath) { (resultStringOrError) in
+            switch resultStringOrError {
+            case .success(let data):
+                print("received data:")
+                print(data)
+            case .failure(let networkError):
+                switch networkError {
+                case .errorNoResponse(let errorDescription):
+                    print("Error: \(errorDescription)")
+                case .errorWithResponse(let statusCode, let statusDescription):
+                    print("Error: status code \(statusCode): \(statusDescription)")
+                case .errorNoDataWithResponse(let statusCode, let statusDescription):
+                    print("Error with no data: status code \(statusCode): \(statusDescription)")
                 }
-
-            case .failure(let error):
-                print("ERROR!")
-                print(error.localizedDescription)
             }
         }
     }
+    
+    func searchForMovies(matching searchText: String, page: Int) {
+        
+        networkManager.search(for: .movies, matching: searchText, page: page) { (resultStringOrError) in
+            
+            switch resultStringOrError {
+            case .success(let data):
+                print("received data:")
+                print(data)
+            case .failure(let networkError):
+                switch networkError {
+                case .errorNoResponse(let errorDescription):
+                    print("Error: \(errorDescription)")
+                case .errorWithResponse(let statusCode, let statusDescription):
+                    print("Error: status code \(statusCode): \(statusDescription)")
+                case .errorNoDataWithResponse(let statusCode, let statusDescription):
+                    print("Error with no data: status code \(statusCode): \(statusDescription)")
+                }
+            }
+        }
+    }
+    
+
 }
