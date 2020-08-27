@@ -20,14 +20,12 @@ class MovieListViewController: UIViewController {
         super.viewDidLoad()
         
         viewModel = MovieListViewModel(networkMgr: networkManager)
-//        viewModel.printMoviesInfo()
-//        viewModel.getMoviesInfo()
+
+        viewModel.searchForMovies(matching: "harry potter", page: 1)
         
-//        viewModel.searchForMovies(matching: "harry potter", page: 1)
-        
-        viewModel.searchxForMovies(matching: "harry potter", page: 1)
+        viewModel.getMovie(withId: 767) {
+            print("getMovie function was called")
+        }
     }
-
-
 }
 
