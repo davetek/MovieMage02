@@ -23,7 +23,9 @@ class MovieListViewController: UIViewController {
 //        viewModel.printMoviesInfo()
 //        viewModel.getMoviesInfo()
         
-        viewModel.searchForMovies(matching: "harry potter", page: 1)
+//        viewModel.searchForMovies(matching: "harry potter", page: 1)
+        
+        viewModel.searchxForMovies(matching: "harry potter", page: 1)
     }
 
 
