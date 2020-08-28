@@ -8,24 +8,24 @@
 
 import UIKit
 
-class MovieListViewController: UIViewController {
+class MoviesListViewController: UIViewController {
     
     //injected from SceneDelegate when scene is created at app launch
     var networkManager: NetworkManager!
     
     //instantiated in viewDidLoad()
-    var viewModel: MovieListViewModel!
+    var viewModel: MoviesListViewModel!
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        viewModel = MovieListViewModel(networkMgr: networkManager)
+        viewModel = MoviesListViewModel(networkMgr: networkManager)
 
         viewModel.searchForMovies(matching: "harry potter", page: 1)
         
-        viewModel.getMovie(withId: 767) {
-            print("getMovie function was called")
-        }
+//        viewModel.getMovie(withId: 767) {
+//            print("getMovie function was called")
+//        }
     }
 }
 

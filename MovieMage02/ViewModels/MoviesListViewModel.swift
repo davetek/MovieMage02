@@ -8,13 +8,25 @@
 
 import Foundation
 
-class MovieListViewModel {
+struct MoviesListViewModel {
     
     var networkManager: NetworkManager!
     
     init(networkMgr: NetworkManager) {
         networkManager = networkMgr
     }
+}
+
+extension MoviesListViewModel {
+    //properties to be accessed by view controller
+    
+//    var totalResults: Int
+//    var totalPages: Int
+//    var moviesList: [MovieDetailsViewModel]
+}
+
+extension MoviesListViewModel {
+    //functions to be used by view controller
     
     func getMovie(withId id: Int, completionHandler: @escaping () -> Void) {
         

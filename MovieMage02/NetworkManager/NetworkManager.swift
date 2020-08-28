@@ -174,5 +174,69 @@ class NetworkManager {
     }
     
     
+    func getImageData(forImagePath imagePath: String, completionHandler: @escaping (Result<Data, NetworkError>) -> Void) {
+        
+        let sessionConfig = URLSessionConfiguration.default
+        let urlSession = URLSession(configuration: sessionConfig)
+        
+        guard let apiKey = ProcessInfo.processInfo.environment["TMAK"] else {
+            print("could not retrieve environment variable value")
+            return
+        }
+        
+        var pathAPIVersionPrefix = "/3/"
+        var tempImagePath = "eVPs2Y0LyvTLZn6AP5Z6O2rtiGB.jpg"
+        
+        var uc = URLComponents()
+        uc.scheme = "https"
+        uc.host = "api.themoviedb.org"
+        uc.path = pathAPIVersionPrefix + tempImagePath
+        uc.queryItems = [URLQueryItem(name: "api_key", value: apiKey)]
+        
+        guard let url = uc.url else {
+            print("could not form url from components")
+            return
+        }
+        
+        DispatchQueue.global(qos: .background).async {
+            let task = urlSession.dataTask(with: url) { (data, response, error) in
+                
+                //set the response, or if no response, execute closure w/ .failure case 'errorNoResponse'
+                guard let httpResponse = response as? HTTPURLResponse else {
+                    if let error = error {
+                        completionHandler(.failure(.errorNoResponse(error.localizedDescription)))
+                    } else {
+                        completionHandler(.failure((.errorNoResponse("Network request failed without an error from the system"))))
+                    }
+                    return
+                }
+                
+                //verify that response status code is successful; if not, execute closure w/.failure case 'errorWithResponse'
+                guard (200...299).contains(httpResponse.statusCode) else {
+                    let statusCode = httpResponse.statusCode
+                    let statusCodeString = HTTPURLResponse.localizedString(forStatusCode: statusCode)
+                    completionHandler(.failure(.errorWithResponse(statusCode, statusCodeString)))
+                    return
+                }
+                
+                //Set the data var, or if no data even though successful response code was returned, execute closure w/.failure case 'errorNoDataWithResponse'
+                guard let data = data else {
+                    let statusCode = httpResponse.statusCode
+                    let statusCodeString = HTTPURLResponse.localizedString(forStatusCode: statusCode)
+                    completionHandler(.failure(.errorNoDataWithResponse(statusCode, statusCodeString)))
+                    return
+                }
+                
+                DispatchQueue.main.async {
+                    completionHandler(.success(data))
+                }
+            }
+            task.resume()
+        }
+    }
+    
+    
+    
+    
     
 }
