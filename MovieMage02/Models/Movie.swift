@@ -9,6 +9,7 @@
 import Foundation
 
 struct Movie: Codable {
+
     var genres: [Genre]
     var id: Int
     var overview: String?
@@ -16,6 +17,9 @@ struct Movie: Codable {
     var releaseDate: String
     var title: String
     var runtime: Int?
+    
+    //not in TMDB Movie resource
+    var credits: Credits?
     
     enum CodingKeys: String, CodingKey {
         case genres
