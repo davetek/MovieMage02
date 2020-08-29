@@ -9,6 +9,8 @@
 import Foundation
 
 struct Cast: Codable {
-    
-    
+    var cast_id: Int
+    var character: String
+    var name: String
+    var order: Int
 }

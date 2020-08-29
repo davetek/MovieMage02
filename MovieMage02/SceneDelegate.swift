@@ -19,7 +19,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let _ = (scene as? UIWindowScene) else { return }
         
         let networkManager = NetworkManager()
-        if let initialVC = window?.rootViewController as? MovieListViewController {
+        if let initialVC = window?.rootViewController as? MoviesListViewController {
             initialVC.networkManager = networkManager
         }
     }

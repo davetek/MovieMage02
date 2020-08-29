@@ -10,4 +10,14 @@ import Foundation
 
 struct MovieFromSearch: Codable {
     var id: Int
+    var posterPath: String?
+    var releaseDate: String?
+    var title: String
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case posterPath = "poster_path"
+        case releaseDate = "release_date"
+        case title
+    }
 }

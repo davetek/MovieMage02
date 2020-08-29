@@ -10,5 +10,6 @@ import Foundation
 
 struct Credits: Codable {
     
-    
+    var id: Int
+    var cast: [Cast]
 }
