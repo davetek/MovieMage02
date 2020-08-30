@@ -15,26 +15,19 @@ class MoviesListViewController: UIViewController {
     
     //instantiated in viewDidLoad()
     var viewModel: MoviesListViewModel!
+    
+    @IBOutlet weak var searchBar: UISearchBar!
+    
+    
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
         viewModel = MoviesListViewModel(networkMgr: networkManager)
+        
+        searchBar.delegate = self
 
-        viewModel.searchForMovies(matching: "harry potter", page: 1) { (results) in
-            switch results {
-            case .success(let numberOfResults):
-                print("successful search: retrieved \(numberOfResults) movies")
-                print("number of movies in movies list for view: \(self.viewModel.moviesWithImageData.count)")
-            case .failure(let viewModelError):
-                switch viewModelError {
-                case .emptyResults(let emptyResultsMessage):
-                    print(emptyResultsMessage)
-                case .errorRetrievingResults(let retrievalErrorMessage):
-                    print(retrievalErrorMessage)
-                }
-            }
-        }
         //move these functions to MovieDetailsViewController
         
 //        viewModel.getMovie(withId: 767) { (results) in
@@ -63,6 +56,34 @@ class MoviesListViewController: UIViewController {
 //                }
 //            }
 //        }
+    }
+}
+
+extension MoviesListViewController: UISearchBarDelegate {
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        guard let searchText = searchBar.text else {
+            let alert = UIAlertController(title: "Cut!", message: "Please enter your search terms and try again", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            self.present(alert, animated: true)
+            return
+        }
+        
+        searchBar.resignFirstResponder()
+        viewModel.searchForMovies(matching: searchText, page: 1) { (results) in
+            switch results {
+            case .success(let numberOfResults):
+                print("successful search: retrieved \(numberOfResults) movies")
+                print("number of movies in movies list for view: \(self.viewModel.moviesWithImageData.count)")
+            case .failure(let viewModelError):
+                switch viewModelError {
+                case .emptyResults(let emptyResultsMessage):
+                    print(emptyResultsMessage)
+                case .errorRetrievingResults(let retrievalErrorMessage):
+                    print(retrievalErrorMessage)
+                }
+            }
+        }
     }
 }
 
