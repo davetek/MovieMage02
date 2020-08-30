@@ -15,6 +15,12 @@ class MoviesListViewModel {
         case emptyResults(String)
     }
     
+    enum GetImageDataForEachMovieInListError: Error {
+        case errorNoMoviesInList(String)
+        case errorNoImagePath(String)
+        case errorGettingImageDataForImagePath(String)
+    }
+    
     var networkManager: NetworkManager
     private var movieSearchData: MovieSearchData
     
@@ -55,58 +61,54 @@ extension MoviesListViewModel {
         
         if moviesFromSearch.count > 0 {
             for movie in moviesFromSearch {
-                let movieForView = MovieFromSearchWImageData(id: movie.id, posterImageData: nil, releaseDate: movie.releaseDate, title: movie.title)
+                let movieForView = MovieFromSearchWImageData(id: movie.id, posterPath: movie.posterPath, posterImageData: nil, releaseDate: movie.releaseDate, title: movie.title)
                 moviesListForView.append(movieForView)
             }
         }
         return moviesListForView
     }
     
-//    func getPosterImageDataForEachMovie(inMovieList moviesList: [MovieFromSearchWImageData], completionHandler: (Result<Int, Error>) -> Void) {
+//    func getAndSetPosterImageDataForEachMovie(inMovieList moviesList: inout [MovieFromSearchWImageData], completionHandler: @escaping (Result<Int, GetImageDataForEachMovieInListError>) -> Void) {
 //        //function guaranteed to return array of structs
 //
 //        //for each struct, call getImageData network function to get the image data
 //        // if successful, set the image data for the posterImageData property
 //        // if this fails, set the posterImageData property to nil
 //
-//        var moviesListForView: [MovieFromSearchWImageData] = []
-//
-//        if moviesFromSearch.count > 0 {
-//            for movie in moviesFromSearch {
-//                var movieForView = MovieFromSearchWImageData(id: movie.id, posterImageData: nil, releaseDate: movie.releaseDate, title: movie.title)
-//
-//                if let imagePath = movie.posterPath {
-//
+//        if moviesList.count > 0 {
+//            for i in moviesList.indices {
+//                if let imagePath = moviesList[i].posterPath {
 //                    networkManager.getPosterImageData(forImagePath: imagePath, size: .w185) { (results) in
 //                        switch results {
 //                        case .success(let data):
-//                            movieForView.posterImageData = data
+//                            moviesList[i].posterImageData = data
 //                            print("successfully retrieved image data for image at path: \(imagePath)")
+//                            let index = i
+//                            completionHandler(.success(i))
 //                        case .failure(let networkError):
 //                            switch networkError {
 //                            case .errorNoResponse(let errorDescription):
 //                                let errorMsg = "Error: \(errorDescription)"
-//                                print(errorMsg)
+//                                completionHandler(.failure(.errorGettingImageDataForImagePath(errorMsg)))
 //                            case .errorWithResponse(let statusCode, let statusDescription):
 //                                let errorMsg = "Error: status code \(statusCode): \(statusDescription)"
-//                                print(errorMsg)
+//                                completionHandler(.failure(.errorGettingImageDataForImagePath(errorMsg)))
 //                            case .errorNoDataWithResponse(let statusCode, let statusDescription):
 //                                let errorMsg = "Error with no data: status code \(statusCode): \(statusDescription)"
-//                                print(errorMsg)
+//                                completionHandler(.failure(.errorGettingImageDataForImagePath(errorMsg)))
 //                            case .errorCouldNotDecodeData(let dataText):
 //                                let errorMsg = "Error: could not decode data received: \(dataText)"
-//                                print(errorMsg)
+//                                completionHandler(.failure(.errorGettingImageDataForImagePath(errorMsg)))
 //                            }
 //                        }
-//                        moviesListForView.append(movieForView)
 //                    }
+//                } else {
+//                    completionHandler(.failure(.errorNoImagePath("This movie has no poster image")))
 //                }
 //            }
-//            completionHandler(moviesListForView)
 //        } else {
-//            completionHandler(moviesListForView)
+//            completionHandler(.failure(.errorNoMoviesInList("Did not retrieve any images because movies list is empty")))
 //        }
-//
 //    }
     
     //passes number of movies retrieved to completion handler if successful; passes custom error if not

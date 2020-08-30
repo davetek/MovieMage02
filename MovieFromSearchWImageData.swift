@@ -10,6 +10,7 @@ import Foundation
 
 struct MovieFromSearchWImageData {
     var id: Int
+    var posterPath: String?
     var posterImageData: Data?
     var releaseDate: String?
     var title: String
