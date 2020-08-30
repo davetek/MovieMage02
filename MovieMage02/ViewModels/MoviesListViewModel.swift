@@ -8,95 +8,105 @@
 
 import Foundation
 
-struct MoviesListViewModel {
+class MoviesListViewModel {
     
     enum MoviesListError: Error {
         case errorRetrievingResults(String)
         case emptyResults(String)
     }
     
-    enum MovieDetailsError: Error {
-        case errorRetrievingResults(String)
+    var networkManager: NetworkManager
+    var movieSearchData: MovieSearchData {
+        didSet {
+            if movieSearchData.results.count > 0 {
+                
+                makeMoviesListForView(using: movieSearchData.results) { (moviesWithPosterImageData) in
+                    self.moviesWithImageData = moviesWithPosterImageData
+                    print("created movies list for view: \(self.moviesWithImageData)")
+                }
+            }
+        }
     }
+    var moviesWithImageData: [MovieFromSearchWImageData]?
     
-    enum MovieCreditsError: Error {
-        case errorRetrievingResults(String)
-        case errorEmptyCastList(String)
-    }
-    
-    var networkManager: NetworkManager!
     
     init(networkMgr: NetworkManager) {
         networkManager = networkMgr
+        movieSearchData = MovieSearchData(page: 0, totalResults: 0, totalPages: 0, results: [])
     }
 }
 
 extension MoviesListViewModel {
     //properties to be accessed by view controller
-    
-    //    var totalResults: Int
-    //    var totalPages: Int
-    //    var moviesList: [MovieDetailsViewModel]
+    //properties to be supplied by
+    var page: Int {
+        return movieSearchData.page
+    }
+    var totalResults: Int {
+        return movieSearchData.totalResults
+    }
+    var totalPages: Int {
+        return movieSearchData.totalPages
+    }
+    var results: [MovieFromSearch] {
+        return movieSearchData.results
+    }
 }
 
 extension MoviesListViewModel {
     //functions to be used by view controller
     
-    //passes id of movie retrieved to completion handler if successful; passes custom error if not
-    func getMovie(withId id: Int, completionHandler: @escaping (Result<Int, MovieDetailsError>) -> Void) {
+    //instantiate a Movie model using the properties known about the movie from the search
+    func makeDetailedMovieModel(forMovieId movieId: Int) -> Movie? {
         
-        networkManager.getMovie(withId: id) { (results) in
-            switch results {
-            case .success(let movie):
-                completionHandler(.success(movie.id))
-            case .failure(let networkError):
-                switch networkError {
-                case .errorNoResponse(let errorDescription):
-                    let errorMsg = "Error: \(errorDescription)"
-                    completionHandler(.failure(.errorRetrievingResults(errorMsg)))
-                case .errorWithResponse(let statusCode, let statusDescription):
-                    let errorMsg = "Error: status code \(statusCode): \(statusDescription)"
-                    completionHandler(.failure(.errorRetrievingResults(errorMsg)))
-                case .errorNoDataWithResponse(let statusCode, let statusDescription):
-                    let errorMsg = "Error with no data: status code \(statusCode): \(statusDescription)"
-                    completionHandler(.failure(.errorRetrievingResults(errorMsg)))
-                case .errorCouldNotDecodeData(let dataText):
-                    let errorMsg = "Error: could not decode data received: \(dataText)"
-                    completionHandler(.failure(.errorRetrievingResults(errorMsg)))
-                }
-            }
-        }
+        return nil
     }
     
-    
-    func getCredits(forMovieId id: Int, completionHandler: @escaping (Result<[Cast], MovieCreditsError>) -> Void) {
+    func makeMoviesListForView(using moviesFromSearch: [MovieFromSearch], completionHandler: ([MovieFromSearchWImageData]) -> Void) {
+        //function guaranteed to return array of structs
         
-        networkManager.getCredits(forMovieId: id) { (results) in
-            switch results {
-            case .success(let credits):
-                guard credits.cast.count > 0 else {
-                    completionHandler(.failure(.errorEmptyCastList("Error: Cast list is empty for this movie.")))
-                    return
-                }
-                //sort the cast list by order # and assign result to a variable
-                //then remove all but the first n items (8?)
-                //and convert this to an array of strings (cast name), which are the first n cast member names
-                //and change the Result type passed to completion handler to [String]
-
-                completionHandler(.success(credits.cast))
-            case .failure(let networkError):
-                switch networkError {
-                case .errorNoResponse(let errorDescription):
-                    print("Error: \(errorDescription)")
-                case .errorWithResponse(let statusCode, let statusDescription):
-                    print("Error: status code \(statusCode): \(statusDescription)")
-                case .errorNoDataWithResponse(let statusCode, let statusDescription):
-                    print("Error with no data: status code \(statusCode): \(statusDescription)")
-                case .errorCouldNotDecodeData(let dataText):
-                    print("Error: could not decode data received: \(dataText)")
+        //for each struct, call getImageData network function to get the image data
+        // if successful, set the image data for the posterImageData property
+        // if this fails, set the posterImageData property to nil
+        
+        var moviesListForView: [MovieFromSearchWImageData] = []
+        
+        if moviesFromSearch.count > 0 {
+            for movie in moviesFromSearch {
+                var movieForView = MovieFromSearchWImageData(id: movie.id, posterImageData: nil, releaseDate: movie.releaseDate ?? nil, title: movie.title)
+                
+                if let imagePath = movie.posterPath {
+                    
+                    networkManager.getPosterImageData(forImagePath: imagePath, size: .w185) { (results) in
+                        switch results {
+                        case .success(let data):
+                            movieForView.posterImageData = data
+                            print("successfully retrieved image data for image at path: \(imagePath)")
+                        case .failure(let networkError):
+                            switch networkError {
+                            case .errorNoResponse(let errorDescription):
+                                let errorMsg = "Error: \(errorDescription)"
+                                print(errorMsg)
+                            case .errorWithResponse(let statusCode, let statusDescription):
+                                let errorMsg = "Error: status code \(statusCode): \(statusDescription)"
+                                print(errorMsg)
+                            case .errorNoDataWithResponse(let statusCode, let statusDescription):
+                                let errorMsg = "Error with no data: status code \(statusCode): \(statusDescription)"
+                                print(errorMsg)
+                            case .errorCouldNotDecodeData(let dataText):
+                                let errorMsg = "Error: could not decode data received: \(dataText)"
+                                print(errorMsg)
+                            }
+                        }
+                        moviesListForView.append(movieForView)
+                    }
                 }
             }
+            completionHandler(moviesListForView)
+        } else {
+            completionHandler(moviesListForView)
         }
+        
     }
     
     //passes number of movies retrieved to completion handler if successful; passes custom error if not
@@ -113,6 +123,7 @@ extension MoviesListViewModel {
                 print("for page \(movieSearchResults.page) of \(movieSearchResults.totalPages) total pages")
                 print("movie search results 'results' array containing >= 0 movie from search instances:")
                 print("\(movieSearchResults.results)")
+                self.movieSearchData = movieSearchResults
                 completionHandler(.success(movieSearchResults.totalResults))
             case .failure(let networkError):
                 switch networkError {

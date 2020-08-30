@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2108971924FABA2A001FE25C /* MovieFromSearchWImageData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2108971824FABA2A001FE25C /* MovieFromSearchWImageData.swift */; };
 		21165F2E24F6E5C400DC6F94 /* MovieSearchData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21165F2D24F6E5C400DC6F94 /* MovieSearchData.swift */; };
 		21165F3024F6E6EA00DC6F94 /* Movie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21165F2F24F6E6EA00DC6F94 /* Movie.swift */; };
 		21165F3224F6EF8800DC6F94 /* Genre.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21165F3124F6EF8800DC6F94 /* Genre.swift */; };
@@ -36,6 +37,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2108971824FABA2A001FE25C /* MovieFromSearchWImageData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieFromSearchWImageData.swift; sourceTree = SOURCE_ROOT; };
 		21165F2D24F6E5C400DC6F94 /* MovieSearchData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieSearchData.swift; sourceTree = "<group>"; };
 		21165F2F24F6E6EA00DC6F94 /* Movie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Movie.swift; sourceTree = "<group>"; };
 		21165F3124F6EF8800DC6F94 /* Genre.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Genre.swift; sourceTree = "<group>"; };
@@ -139,6 +141,7 @@
 		2142AAEF24F175AC0054DAD7 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				2108971824FABA2A001FE25C /* MovieFromSearchWImageData.swift */,
 				21165F2D24F6E5C400DC6F94 /* MovieSearchData.swift */,
 				21165F3524F7191100DC6F94 /* Cast.swift */,
 				21165F3724F7196B00DC6F94 /* Credits.swift */,
@@ -279,6 +282,7 @@
 				21165F3024F6E6EA00DC6F94 /* Movie.swift in Sources */,
 				21165F3624F7191100DC6F94 /* Cast.swift in Sources */,
 				2142AAF424F181400054DAD7 /* NetworkManager.swift in Sources */,
+				2108971924FABA2A001FE25C /* MovieFromSearchWImageData.swift in Sources */,
 				2142AAD024F1683C0054DAD7 /* MoviesListViewController.swift in Sources */,
 				21165F3824F7196B00DC6F94 /* Credits.swift in Sources */,
 				2142AACC24F1683C0054DAD7 /* AppDelegate.swift in Sources */,

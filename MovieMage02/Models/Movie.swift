@@ -10,11 +10,11 @@ import Foundation
 
 struct Movie: Codable {
 
-    var genres: [Genre]
+    var genres: [Genre]?
     var id: Int
     var overview: String?
     var posterPath: String?
-    var releaseDate: String
+    var releaseDate: String?
     var title: String
     var runtime: Int?
     

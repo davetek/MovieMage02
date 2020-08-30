@@ -13,7 +13,7 @@ struct MovieFromSearch: Codable {
     var posterPath: String?
     var releaseDate: String?
     var title: String
-    
+        
     enum CodingKeys: String, CodingKey {
         case id
         case posterPath = "poster_path"

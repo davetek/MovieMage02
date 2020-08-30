@@ -15,6 +15,16 @@ enum NetworkError: Error {
     case errorCouldNotDecodeData(String) //assoc. value is raw data text
 }
 
+enum PosterSize: String {
+    case w92
+    case w154
+    case w185
+    case w342
+    case w500
+    case w780
+    case original
+}
+
 class NetworkManager {
     
     enum SearchTarget: String {
@@ -248,26 +258,27 @@ class NetworkManager {
         }
     }
     
-    func getImageData(forImagePath imagePath: String, completionHandler: @escaping (Result<Data, NetworkError>) -> Void) {
+    func getPosterImageData(forImagePath imagePath: String, size: PosterSize, completionHandler: @escaping (Result<Data, NetworkError>) -> Void) {
         
         guard let apiKey = ProcessInfo.processInfo.environment["TMAK"] else {
             print("could not retrieve environment variable value")
             return
         }
         
-        var pathAPIVersionPrefix = "/3/"
-        var tempImagePath = "eVPs2Y0LyvTLZn6AP5Z6O2rtiGB.jpg"
+        let basePath = "/t/p/"
+        let tempImagePath = "eVPs2Y0LyvTLZn6AP5Z6O2rtiGB.jpg"
         
         var uc = URLComponents()
         uc.scheme = "https"
-        uc.host = "api.themoviedb.org"
-        uc.path = pathAPIVersionPrefix + tempImagePath
+        uc.host = "image.tmdb.org"
+        uc.path = basePath + size.rawValue + imagePath
         uc.queryItems = [URLQueryItem(name: "api_key", value: apiKey)]
         
         guard let url = uc.url else {
             print("could not form url from components")
             return
         }
+        print("url for movie poster image: \(url.absoluteString)")
         
         let sessionConfig = URLSessionConfiguration.default
         let urlSession = URLSession(configuration: sessionConfig)
