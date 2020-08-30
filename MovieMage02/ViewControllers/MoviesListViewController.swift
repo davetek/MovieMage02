@@ -25,6 +25,7 @@ class MoviesListViewController: UIViewController {
             switch results {
             case .success(let numberOfResults):
                 print("successful search: retrieved \(numberOfResults) movies")
+                print("number of movies in movies list for view: \(self.viewModel.moviesWithImageData.count)")
             case .failure(let viewModelError):
                 switch viewModelError {
                 case .emptyResults(let emptyResultsMessage):

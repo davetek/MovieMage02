@@ -16,19 +16,7 @@ class MoviesListViewModel {
     }
     
     var networkManager: NetworkManager
-    var movieSearchData: MovieSearchData {
-        didSet {
-            if movieSearchData.results.count > 0 {
-                
-                makeMoviesListForView(using: movieSearchData.results) { (moviesWithPosterImageData) in
-                    self.moviesWithImageData = moviesWithPosterImageData
-                    print("created movies list for view: \(self.moviesWithImageData)")
-                }
-            }
-        }
-    }
-    var moviesWithImageData: [MovieFromSearchWImageData]?
-    
+    private var movieSearchData: MovieSearchData
     
     init(networkMgr: NetworkManager) {
         networkManager = networkMgr
@@ -51,63 +39,75 @@ extension MoviesListViewModel {
     var results: [MovieFromSearch] {
         return movieSearchData.results
     }
+    var moviesWithImageData: [MovieFromSearchWImageData] {
+        return makeMoviesListForViewFromSearchResults(using: results)
+    }
 }
 
 extension MoviesListViewModel {
     //functions to be used by view controller
     
-    //instantiate a Movie model using the properties known about the movie from the search
-    func makeDetailedMovieModel(forMovieId movieId: Int) -> Movie? {
-        
-        return nil
-    }
-    
-    func makeMoviesListForView(using moviesFromSearch: [MovieFromSearch], completionHandler: ([MovieFromSearchWImageData]) -> Void) {
+    func makeMoviesListForViewFromSearchResults(using moviesFromSearch: [MovieFromSearch]) -> [MovieFromSearchWImageData] {
         //function guaranteed to return array of structs
-        
-        //for each struct, call getImageData network function to get the image data
-        // if successful, set the image data for the posterImageData property
-        // if this fails, set the posterImageData property to nil
+        //should probably use Map for this
         
         var moviesListForView: [MovieFromSearchWImageData] = []
         
         if moviesFromSearch.count > 0 {
             for movie in moviesFromSearch {
-                var movieForView = MovieFromSearchWImageData(id: movie.id, posterImageData: nil, releaseDate: movie.releaseDate ?? nil, title: movie.title)
-                
-                if let imagePath = movie.posterPath {
-                    
-                    networkManager.getPosterImageData(forImagePath: imagePath, size: .w185) { (results) in
-                        switch results {
-                        case .success(let data):
-                            movieForView.posterImageData = data
-                            print("successfully retrieved image data for image at path: \(imagePath)")
-                        case .failure(let networkError):
-                            switch networkError {
-                            case .errorNoResponse(let errorDescription):
-                                let errorMsg = "Error: \(errorDescription)"
-                                print(errorMsg)
-                            case .errorWithResponse(let statusCode, let statusDescription):
-                                let errorMsg = "Error: status code \(statusCode): \(statusDescription)"
-                                print(errorMsg)
-                            case .errorNoDataWithResponse(let statusCode, let statusDescription):
-                                let errorMsg = "Error with no data: status code \(statusCode): \(statusDescription)"
-                                print(errorMsg)
-                            case .errorCouldNotDecodeData(let dataText):
-                                let errorMsg = "Error: could not decode data received: \(dataText)"
-                                print(errorMsg)
-                            }
-                        }
-                        moviesListForView.append(movieForView)
-                    }
-                }
+                let movieForView = MovieFromSearchWImageData(id: movie.id, posterImageData: nil, releaseDate: movie.releaseDate, title: movie.title)
+                moviesListForView.append(movieForView)
             }
-            completionHandler(moviesListForView)
-        } else {
-            completionHandler(moviesListForView)
         }
-        
+        return moviesListForView
     }
+    
+//    func getPosterImageDataForEachMovie(inMovieList moviesList: [MovieFromSearchWImageData], completionHandler: (Result<Int, Error>) -> Void) {
+//        //function guaranteed to return array of structs
+//
+//        //for each struct, call getImageData network function to get the image data
+//        // if successful, set the image data for the posterImageData property
+//        // if this fails, set the posterImageData property to nil
+//
+//        var moviesListForView: [MovieFromSearchWImageData] = []
+//
+//        if moviesFromSearch.count > 0 {
+//            for movie in moviesFromSearch {
+//                var movieForView = MovieFromSearchWImageData(id: movie.id, posterImageData: nil, releaseDate: movie.releaseDate, title: movie.title)
+//
+//                if let imagePath = movie.posterPath {
+//
+//                    networkManager.getPosterImageData(forImagePath: imagePath, size: .w185) { (results) in
+//                        switch results {
+//                        case .success(let data):
+//                            movieForView.posterImageData = data
+//                            print("successfully retrieved image data for image at path: \(imagePath)")
+//                        case .failure(let networkError):
+//                            switch networkError {
+//                            case .errorNoResponse(let errorDescription):
+//                                let errorMsg = "Error: \(errorDescription)"
+//                                print(errorMsg)
+//                            case .errorWithResponse(let statusCode, let statusDescription):
+//                                let errorMsg = "Error: status code \(statusCode): \(statusDescription)"
+//                                print(errorMsg)
+//                            case .errorNoDataWithResponse(let statusCode, let statusDescription):
+//                                let errorMsg = "Error with no data: status code \(statusCode): \(statusDescription)"
+//                                print(errorMsg)
+//                            case .errorCouldNotDecodeData(let dataText):
+//                                let errorMsg = "Error: could not decode data received: \(dataText)"
+//                                print(errorMsg)
+//                            }
+//                        }
+//                        moviesListForView.append(movieForView)
+//                    }
+//                }
+//            }
+//            completionHandler(moviesListForView)
+//        } else {
+//            completionHandler(moviesListForView)
+//        }
+//
+//    }
     
     //passes number of movies retrieved to completion handler if successful; passes custom error if not
     func searchForMovies(matching searchText: String, page: Int, completionHandler: @escaping (Result<Int, MoviesListError>) -> Void) {
