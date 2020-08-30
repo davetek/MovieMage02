@@ -25,6 +25,7 @@ class MoviesListViewController: UIViewController {
             switch results {
             case .success(let numberOfResults):
                 print("successful search: retrieved \(numberOfResults) movies")
+                print("number of movies in movies list for view: \(self.viewModel.moviesWithImageData.count)")
             case .failure(let viewModelError):
                 switch viewModelError {
                 case .emptyResults(let emptyResultsMessage):
@@ -34,33 +35,34 @@ class MoviesListViewController: UIViewController {
                 }
             }
         }
+        //move these functions to MovieDetailsViewController
         
-        viewModel.getMovie(withId: 767) { (results) in
-            switch results {
-            case .success(let idForRetrievedMovie):
-                print("successfully retrieved data for movie \(idForRetrievedMovie)")
-            case .failure(let movieDetailsError):
-                switch movieDetailsError {
-                case .errorRetrievingResults(let errorMsg):
-                    print(errorMsg)
-                }
-            }
-        }
-        
-        viewModel.getCredits(forMovieId: 767) { (results) in
-            switch results {
-            case .success(let castArray):
-                print("successfully retrieved \(castArray.count) cast members")
-                
-            case .failure(let movieCreditsError):
-                switch movieCreditsError {
-                case .errorRetrievingResults(let errorMsg):
-                    print(errorMsg)
-                case .errorEmptyCastList(let errorMsg):
-                    print(errorMsg)
-                }
-            }
-        }
+//        viewModel.getMovie(withId: 767) { (results) in
+//            switch results {
+//            case .success(let idForRetrievedMovie):
+//                print("successfully retrieved data for movie \(idForRetrievedMovie)")
+//            case .failure(let movieDetailsError):
+//                switch movieDetailsError {
+//                case .errorRetrievingResults(let errorMsg):
+//                    print(errorMsg)
+//                }
+//            }
+//        }
+//
+//        viewModel.getCredits(forMovieId: 767) { (results) in
+//            switch results {
+//            case .success(let castArray):
+//                print("successfully retrieved \(castArray.count) cast members")
+//
+//            case .failure(let movieCreditsError):
+//                switch movieCreditsError {
+//                case .errorRetrievingResults(let errorMsg):
+//                    print(errorMsg)
+//                case .errorEmptyCastList(let errorMsg):
+//                    print(errorMsg)
+//                }
+//            }
+//        }
     }
 }
 
