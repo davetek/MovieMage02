@@ -68,49 +68,49 @@ extension MoviesListViewModel {
         return moviesListForView
     }
     
-    func getAndSetPosterImageDataForEachMovie(inMovieList moviesList: inout [MovieFromSearchWImageData], completionHandler: @escaping (Result<Int, GetImageDataForEachMovieInListError>) -> Void) {
-        //function guaranteed to return array of structs
-
-        //for each struct, call getImageData network function to get the image data
-        // if successful, set the image data for the posterImageData property
-        // if this fails, set the posterImageData property to nil
-
-        if moviesList.count > 0 {
-            for i in moviesList.indices {
-                if let imagePath = moviesList[i].posterPath {
-                    networkManager.getPosterImageData(forImagePath: imagePath, size: .w185) { (results) in
-                        switch results {
-                        case .success(let data):
-                            moviesList[i].posterImageData = data
-                            print("successfully retrieved image data for image at path: \(imagePath)")
-                            let index = i
-                            completionHandler(.success(i))
-                        case .failure(let networkError):
-                            switch networkError {
-                            case .errorNoResponse(let errorDescription):
-                                let errorMsg = "Error: \(errorDescription)"
-                                completionHandler(.failure(.errorGettingImageDataForImagePath(errorMsg)))
-                            case .errorWithResponse(let statusCode, let statusDescription):
-                                let errorMsg = "Error: status code \(statusCode): \(statusDescription)"
-                                completionHandler(.failure(.errorGettingImageDataForImagePath(errorMsg)))
-                            case .errorNoDataWithResponse(let statusCode, let statusDescription):
-                                let errorMsg = "Error with no data: status code \(statusCode): \(statusDescription)"
-                                completionHandler(.failure(.errorGettingImageDataForImagePath(errorMsg)))
-                            case .errorCouldNotDecodeData(let dataText):
-                                let errorMsg = "Error: could not decode data received: \(dataText)"
-                                completionHandler(.failure(.errorGettingImageDataForImagePath(errorMsg)))
-                            }
-                        }
-                    }
-                } else {
-                    completionHandler(.failure(.errorNoImagePath("This movie has no poster image")))
-                }
-            }
-        } else {
-            completionHandler(.failure(.errorNoMoviesInList("Did not retrieve any images because movies list is empty")))
-        }
-    }
-    
+//    func getAndSetPosterImageDataForEachMovie(inMovieList moviesList: inout [MovieFromSearchWImageData], completionHandler: @escaping (Result<Int, GetImageDataForEachMovieInListError>) -> Void) {
+//        //function guaranteed to return array of structs
+//
+//        //for each struct, call getImageData network function to get the image data
+//        // if successful, set the image data for the posterImageData property
+//        // if this fails, set the posterImageData property to nil
+//
+//        if moviesList.count > 0 {
+//            for i in moviesList.indices {
+//                if let imagePath = moviesList[i].posterPath {
+//                    networkManager.getPosterImageData(forImagePath: imagePath, size: .w185) { (results) in
+//                        switch results {
+//                        case .success(let data):
+//                            moviesList[i].posterImageData = data
+//                            print("successfully retrieved image data for image at path: \(imagePath)")
+//                            let index = i
+//                            completionHandler(.success(i))
+//                        case .failure(let networkError):
+//                            switch networkError {
+//                            case .errorNoResponse(let errorDescription):
+//                                let errorMsg = "Error: \(errorDescription)"
+//                                completionHandler(.failure(.errorGettingImageDataForImagePath(errorMsg)))
+//                            case .errorWithResponse(let statusCode, let statusDescription):
+//                                let errorMsg = "Error: status code \(statusCode): \(statusDescription)"
+//                                completionHandler(.failure(.errorGettingImageDataForImagePath(errorMsg)))
+//                            case .errorNoDataWithResponse(let statusCode, let statusDescription):
+//                                let errorMsg = "Error with no data: status code \(statusCode): \(statusDescription)"
+//                                completionHandler(.failure(.errorGettingImageDataForImagePath(errorMsg)))
+//                            case .errorCouldNotDecodeData(let dataText):
+//                                let errorMsg = "Error: could not decode data received: \(dataText)"
+//                                completionHandler(.failure(.errorGettingImageDataForImagePath(errorMsg)))
+//                            }
+//                        }
+//                    }
+//                } else {
+//                    completionHandler(.failure(.errorNoImagePath("This movie has no poster image")))
+//                }
+//            }
+//        } else {
+//            completionHandler(.failure(.errorNoMoviesInList("Did not retrieve any images because movies list is empty")))
+//        }
+//    }
+//    
     //passes number of movies retrieved to completion handler if successful; passes custom error if not
     func searchForMovies(matching searchText: String, page: Int, completionHandler: @escaping (Result<Int, MoviesListError>) -> Void) {
         

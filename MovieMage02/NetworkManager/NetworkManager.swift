@@ -157,7 +157,6 @@ class NetworkManager {
                 
                 let decoder = JSONDecoder()
                 
-                
                 do {
                     if let responseDataAsString = String(data: data, encoding: String.Encoding.utf8) {
                         print(responseDataAsString)
