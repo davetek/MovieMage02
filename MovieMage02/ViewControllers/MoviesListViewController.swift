@@ -18,8 +18,7 @@ class MoviesListViewController: UIViewController {
     
     @IBOutlet weak var searchBar: UISearchBar!
     
-    
-    
+    @IBOutlet weak var tableView: UITableView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,6 +26,8 @@ class MoviesListViewController: UIViewController {
         viewModel = MoviesListViewModel(networkMgr: networkManager)
         
         searchBar.delegate = self
+        tableView.dataSource = self
+        tableView.delegate = self
 
         //move these functions to MovieDetailsViewController
         
@@ -70,11 +71,17 @@ extension MoviesListViewController: UISearchBarDelegate {
         }
         
         searchBar.resignFirstResponder()
-        viewModel.searchForMovies(matching: searchText, page: 1) { (results) in
+        viewModel.searchForMovies(matching: searchText, page: 1) { [weak self]
+            (results) in
+            guard let self = self else {
+                return
+            }
             switch results {
             case .success(let numberOfResults):
                 print("successful search: retrieved \(numberOfResults) movies")
                 print("number of movies in movies list for view: \(self.viewModel.moviesWithImageData.count)")
+                self.tableView.reloadData()
+                
             case .failure(let viewModelError):
                 switch viewModelError {
                 case .emptyResults(let emptyResultsMessage):
@@ -86,4 +93,26 @@ extension MoviesListViewController: UISearchBarDelegate {
         }
     }
 }
+
+extension MoviesListViewController: UITableViewDataSource, UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        viewModel.moviesWithImageData.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "movieListTableCell", for: indexPath)
+        let movieViewModel = viewModel.moviesWithImageData[indexPath.row]
+        
+        //populate cell
+        cell.textLabel?.text = movieViewModel.title
+        
+        return cell
+        
+    }
+    
+    
+}
+
+
 

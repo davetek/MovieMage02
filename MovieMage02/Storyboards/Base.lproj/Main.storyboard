@@ -19,22 +19,57 @@
                                 <rect key="frame" x="0.0" y="54" width="414" height="56"/>
                                 <textInputTraits key="textInputTraits"/>
                             </searchBar>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="gvy-wZ-kFy">
+                                <rect key="frame" x="0.0" y="110" width="414" height="752"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="movieListTableCell" textLabel="3y8-MU-y23" imageView="uN0-HV-yoE" style="IBUITableViewCellStyleDefault" id="qce-CE-S2D">
+                                        <rect key="frame" x="0.0" y="28" width="414" height="43.5"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="qce-CE-S2D" id="NUM-1h-taC">
+                                            <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="3y8-MU-y23">
+                                                    <rect key="frame" x="59.25" y="0.0" width="334.75" height="43.5"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <imageView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" image="video" catalog="system" id="uN0-HV-yoE">
+                                                    <rect key="frame" x="19.75" y="13.5" width="24.5" height="16"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                </imageView>
+                                            </subviews>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                </prototypes>
+                            </tableView>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <constraints>
+                            <constraint firstItem="gvy-wZ-kFy" firstAttribute="top" secondItem="srB-m7-gyf" secondAttribute="bottom" id="5sj-T8-uGb"/>
                             <constraint firstItem="srB-m7-gyf" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="A14-4w-xVw"/>
                             <constraint firstItem="srB-m7-gyf" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="Jkh-pw-Ocd"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="gvy-wZ-kFy" secondAttribute="bottom" id="ZgU-Nc-04n"/>
                             <constraint firstItem="srB-m7-gyf" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="dXD-1T-XU0"/>
+                            <constraint firstItem="gvy-wZ-kFy" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="qYt-cq-nLg"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="gvy-wZ-kFy" secondAttribute="trailing" id="wjn-DH-7Xa"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <connections>
                         <outlet property="searchBar" destination="srB-m7-gyf" id="KYM-nL-oUX"/>
+                        <outlet property="tableView" destination="gvy-wZ-kFy" id="8I9-BG-fXU"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="139" y="138"/>
+            <point key="canvasLocation" x="137.68115942028987" y="137.94642857142856"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="video" catalog="system" width="128" height="83"/>
+    </resources>
 </document>
