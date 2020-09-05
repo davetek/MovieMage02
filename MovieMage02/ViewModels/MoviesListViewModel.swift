@@ -15,7 +15,7 @@ class MoviesListViewModel {
         case emptyResults(String)
     }
     
-    enum GetImageDataForEachMovieInListError: Error {
+    enum GetImagesForMoviesError: Error {
         case errorNoMoviesInList(String)
         case errorNoImagePath(String)
         case errorGettingImageDataForImagePath(String)
@@ -45,7 +45,7 @@ extension MoviesListViewModel {
     var results: [MovieFromSearch] {
         return movieSearchData.results
     }
-    var moviesWithImageData: [MovieFromSearchWImageData] {
+    var moviesWithImageData: [MovieFromSearchViewModel] {
         return makeMoviesListForViewFromSearchResults(using: results)
     }
 }
@@ -53,64 +53,49 @@ extension MoviesListViewModel {
 extension MoviesListViewModel {
     //functions to be used by view controller
     
-    func makeMoviesListForViewFromSearchResults(using moviesFromSearch: [MovieFromSearch]) -> [MovieFromSearchWImageData] {
+    func getAndSetImageForEachMovie(completionHandler: @escaping (Result<Int, GetImagesForMoviesError>) -> Void) {
+        
+        guard moviesWithImageData.count > 0 else {
+            completionHandler(.failure(.errorNoMoviesInList("No movies in list")))
+            return
+        }
+        
+        for movie in moviesWithImageData.enumerated() {
+            
+            movie.element.getImage { (results) in
+                switch results {
+                case .success(_):
+                    completionHandler(.success(movie.offset))
+                case .failure(let error):
+                    switch error {
+                    case .errorNoImagePath(let errorMsg):
+                        print(errorMsg)
+                    case .errorGettingImageDataForImagePath(let errorMsg):
+                        print(errorMsg)
+                    }
+                }
+            }
+        }
+    }
+    
+    func makeMoviesListForViewFromSearchResults(using moviesFromSearch: [MovieFromSearch]) -> [MovieFromSearchViewModel] {
         //function guaranteed to return array of structs
         //should probably use Map for this
         
-        var moviesListForView: [MovieFromSearchWImageData] = []
+        var moviesListForView: [MovieFromSearchViewModel] = []
         
         if moviesFromSearch.count > 0 {
             for movie in moviesFromSearch {
-                let movieForView = MovieFromSearchWImageData(id: movie.id, posterPath: movie.posterPath, posterImageData: nil, releaseDate: movie.releaseDate, title: movie.title)
+                let movieForView = MovieFromSearchViewModel(networkMgr: networkManager, movieFromSearchModel: movie)
+                
                 moviesListForView.append(movieForView)
             }
+            
         }
         return moviesListForView
     }
     
-//    func getAndSetPosterImageDataForEachMovie(inMovieList moviesList: inout [MovieFromSearchWImageData], completionHandler: @escaping (Result<Int, GetImageDataForEachMovieInListError>) -> Void) {
-//        //function guaranteed to return array of structs
-//
-//        //for each struct, call getImageData network function to get the image data
-//        // if successful, set the image data for the posterImageData property
-//        // if this fails, set the posterImageData property to nil
-//
-//        if moviesList.count > 0 {
-//            for i in moviesList.indices {
-//                if let imagePath = moviesList[i].posterPath {
-//                    networkManager.getPosterImageData(forImagePath: imagePath, size: .w185) { (results) in
-//                        switch results {
-//                        case .success(let data):
-//                            moviesList[i].posterImageData = data
-//                            print("successfully retrieved image data for image at path: \(imagePath)")
-//                            let index = i
-//                            completionHandler(.success(i))
-//                        case .failure(let networkError):
-//                            switch networkError {
-//                            case .errorNoResponse(let errorDescription):
-//                                let errorMsg = "Error: \(errorDescription)"
-//                                completionHandler(.failure(.errorGettingImageDataForImagePath(errorMsg)))
-//                            case .errorWithResponse(let statusCode, let statusDescription):
-//                                let errorMsg = "Error: status code \(statusCode): \(statusDescription)"
-//                                completionHandler(.failure(.errorGettingImageDataForImagePath(errorMsg)))
-//                            case .errorNoDataWithResponse(let statusCode, let statusDescription):
-//                                let errorMsg = "Error with no data: status code \(statusCode): \(statusDescription)"
-//                                completionHandler(.failure(.errorGettingImageDataForImagePath(errorMsg)))
-//                            case .errorCouldNotDecodeData(let dataText):
-//                                let errorMsg = "Error: could not decode data received: \(dataText)"
-//                                completionHandler(.failure(.errorGettingImageDataForImagePath(errorMsg)))
-//                            }
-//                        }
-//                    }
-//                } else {
-//                    completionHandler(.failure(.errorNoImagePath("This movie has no poster image")))
-//                }
-//            }
-//        } else {
-//            completionHandler(.failure(.errorNoMoviesInList("Did not retrieve any images because movies list is empty")))
-//        }
-//    }
-//    
+ 
     //passes number of movies retrieved to completion handler if successful; passes custom error if not
     func searchForMovies(matching searchText: String, page: Int, completionHandler: @escaping (Result<Int, MoviesListError>) -> Void) {
         

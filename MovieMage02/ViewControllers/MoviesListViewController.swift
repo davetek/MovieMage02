@@ -10,6 +10,9 @@ import UIKit
 
 class MoviesListViewController: UIViewController {
     
+    //for use by the view model so it does not need to import UIKit
+    typealias Image = UIImage
+    
     //injected from SceneDelegate when scene is created at app launch
     var networkManager: NetworkManager!
     

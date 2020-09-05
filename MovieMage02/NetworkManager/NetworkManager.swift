@@ -175,10 +175,8 @@ class NetworkManager {
                     }
                 }
             }
-            
             task.resume()
         }
-        
     }
     
     func getMovie(withId id: Int, completionHandler: @escaping (Result<Movie, NetworkError>) -> Void) {
