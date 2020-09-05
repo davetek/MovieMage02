@@ -23,10 +23,12 @@ class MoviesListViewModel {
     
     var networkManager: NetworkManager
     private var movieSearchData: MovieSearchData
+    private var moviesFromSearchWithImages: [MovieFromSearchViewModel]
     
     init(networkMgr: NetworkManager) {
         networkManager = networkMgr
-        movieSearchData = MovieSearchData(page: 0, totalResults: 0, totalPages: 0, results: [])
+        movieSearchData = MovieSearchData(page: 0, totalResults: 0, totalPages: 0, results: [MovieFromSearch]())
+        moviesFromSearchWithImages = [MovieFromSearchViewModel]()
     }
 }
 
@@ -46,7 +48,7 @@ extension MoviesListViewModel {
         return movieSearchData.results
     }
     var moviesWithImageData: [MovieFromSearchViewModel] {
-        return makeMoviesListForViewFromSearchResults(using: results)
+        return moviesFromSearchWithImages
     }
 }
 
@@ -78,7 +80,11 @@ extension MoviesListViewModel {
         }
     }
     
-    func makeMoviesListForViewFromSearchResults(using moviesFromSearch: [MovieFromSearch]) -> [MovieFromSearchViewModel] {
+    func clearSearchDataAndResults () {
+        movieSearchData = MovieSearchData(page: 0, totalResults: 0, totalPages: 0, results: [MovieFromSearch]())
+    }
+    
+    func makeMoviesListForViewFromSearchResults(using moviesFromSearch: [MovieFromSearch]) -> Void {
         //function guaranteed to return array of structs
         //should probably use Map for this
         
@@ -90,27 +96,39 @@ extension MoviesListViewModel {
                 
                 moviesListForView.append(movieForView)
             }
-            
         }
-        return moviesListForView
+        moviesFromSearchWithImages = moviesListForView
     }
     
  
     //passes number of movies retrieved to completion handler if successful; passes custom error if not
     func searchForMovies(matching searchText: String, page: Int, completionHandler: @escaping (Result<Int, MoviesListError>) -> Void) {
         
-        networkManager.search(for: .movies, matching: searchText, page: page) { (results) in
+        networkManager.search(for: .movies, matching: searchText, page: page) { [weak self](results) in
+            
+            guard let self = self else {
+                return
+            }
+            
             switch results {
             case .success(let movieSearchResults):
                 guard movieSearchResults.results.count > 0 else {
                     completionHandler(.failure(.emptyResults("Sorry, we couldn't find any movies matching your search terms")))
                     return
                 }
+                //clear current search data
+                self.clearSearchDataAndResults()
+                
                 print("obtained \(movieSearchResults.totalResults) movie search results")
                 print("for page \(movieSearchResults.page) of \(movieSearchResults.totalPages) total pages")
                 print("movie search results 'results' array containing >= 0 movie from search instances:")
                 print("\(movieSearchResults.results)")
+                
                 self.movieSearchData = movieSearchResults
+                
+                //create the array of movie view models for use by the view controller
+                self.makeMoviesListForViewFromSearchResults(using: self.movieSearchData.results)
+
                 completionHandler(.success(movieSearchResults.totalResults))
             case .failure(let networkError):
                 switch networkError {

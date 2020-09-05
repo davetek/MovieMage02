@@ -58,14 +58,16 @@ extension MovieFromSearchViewModel {
             return
         }
          
-         networkManager.getPosterImageData(forImagePath: posterPath, size: .w185) { (results) in
+        networkManager.getPosterImageData(forImagePath: posterPath, size: .w154) { (results) in
              switch results {
              case .success(let data):
                  if let image = Image(data: data) {
+                    print("image created for poster path: \(posterPath)")
                     self.retrievedPosterImage = image
                      completionHandler(.success(image))
                  }
              case .failure(let networkError):
+                print("failed to get image")
                  switch networkError {
                  case .errorNoResponse(let errorDescription):
                      let errorMsg = "Error: \(errorDescription)"

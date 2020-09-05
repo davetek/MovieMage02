@@ -81,8 +81,38 @@ extension MoviesListViewController: UISearchBarDelegate {
             }
             switch results {
             case .success(let numberOfResults):
+                
                 print("successful search: retrieved \(numberOfResults) movies")
                 print("number of movies in movies list for view: \(self.viewModel.moviesWithImageData.count)")
+                let firstIndex = self.tableView.numberOfRows(inSection: 0)
+                print("first index: \(firstIndex)")
+                print("number of results: \(numberOfResults)")
+                let resultsCount = self.viewModel.results.count
+                print("results count: \(resultsCount)")
+
+                let indexPaths = (firstIndex..<firstIndex + resultsCount).map { (index) in
+                    return IndexPath(row: index, section: 0)
+                }
+                self.tableView.insertRows(at: indexPaths, with: .automatic)
+                
+                self.viewModel.getAndSetImageForEachMovie { [weak self](results) in
+                    guard let self = self else {
+                        return
+                    }
+                    
+                    switch results {
+                    case .success(let index):
+                        print("success case for getAndSetImage...")
+                        let indexPath = IndexPath(row: index, section: 0)
+                        self.tableView.reloadRows(at: [indexPath], with: .none)
+                    case .failure(.errorNoImagePath(let errorMsg)):
+                        print(errorMsg)
+                    case .failure(.errorGettingImageDataForImagePath(let errorMsg)):
+                        print(errorMsg)
+                    case .failure(.errorNoMoviesInList(let errorMsg)):
+                        print(errorMsg)
+                    }
+                }
                 self.tableView.reloadData()
                 
             case .failure(let viewModelError):
@@ -109,6 +139,10 @@ extension MoviesListViewController: UITableViewDataSource, UITableViewDelegate {
         
         //populate cell
         cell.movieTitleLabel.text = movieViewModel.title
+        if let posterImage = movieViewModel.posterImage {
+            cell.moviePosterImageView.image = posterImage
+        } 
+        
         
         return cell
     }
@@ -120,9 +154,4 @@ extension MoviesListViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
         return 158
     }
-    
-    
 }
-
-
-
