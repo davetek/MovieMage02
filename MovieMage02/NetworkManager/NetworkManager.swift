@@ -275,7 +275,6 @@ class NetworkManager {
             print("could not form url from components")
             return
         }
-        print("url for movie poster image: \(url.absoluteString)")
         
         let sessionConfig = URLSessionConfiguration.default
         let urlSession = URLSession(configuration: sessionConfig)

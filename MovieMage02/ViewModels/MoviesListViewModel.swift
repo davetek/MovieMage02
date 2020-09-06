@@ -24,12 +24,17 @@ class MoviesListViewModel {
     var networkManager: NetworkManager
     private var movieSearchData: MovieSearchData
     private var moviesFromSearchWithImages: [MovieFromSearchViewModel]
-    private var lastSearchTextSubmitted: String?
+    private var moviesFromSearchWithImagesTempCopy: [MovieFromSearchViewModel]
+    private var previousSearchTextSubmitted: String?
+    private var searchTextSubmitted: String?
     
     init(networkMgr: NetworkManager) {
         networkManager = networkMgr
         movieSearchData = MovieSearchData(page: 0, totalResults: 0, totalPages: 0, results: [MovieFromSearch]())
         moviesFromSearchWithImages = [MovieFromSearchViewModel]()
+        moviesFromSearchWithImagesTempCopy = [MovieFromSearchViewModel]()
+        previousSearchTextSubmitted = nil
+        searchTextSubmitted = nil
     }
 }
 
@@ -37,22 +42,30 @@ extension MoviesListViewModel {
     //properties to be accessed by view controller
     //properties to be supplied by
     
+    var previousSearchText: String? {
+        return previousSearchTextSubmitted
+    }
+    
     var searchText: String? {
-        return lastSearchTextSubmitted
+        return searchTextSubmitted
     }
     
     var page: Int {
         return movieSearchData.page
     }
+    
     var totalResults: Int {
         return movieSearchData.totalResults
     }
+    
     var totalPages: Int {
         return movieSearchData.totalPages
     }
-    var results: [MovieFromSearch] {
+    var
+    results: [MovieFromSearch] {
         return movieSearchData.results
     }
+    
     var moviesWithImageData: [MovieFromSearchViewModel] {
         return moviesFromSearchWithImages
     }
@@ -90,6 +103,15 @@ extension MoviesListViewModel {
         movieSearchData = MovieSearchData(page: 0, totalResults: 0, totalPages: 0, results: [MovieFromSearch]())
     }
     
+    func copyAndClearMoviesWithImagesList() {
+        moviesFromSearchWithImagesTempCopy = moviesFromSearchWithImages
+        moviesFromSearchWithImages = [MovieFromSearchViewModel]()
+    }
+    
+    func restoreMoviesWithImagesListFromCopy() {
+        moviesFromSearchWithImages = moviesFromSearchWithImagesTempCopy
+    }
+    
     func makeMoviesListForViewFromSearchResults(using moviesFromSearch: [MovieFromSearch]) -> Void {
         //function guaranteed to return array of structs
         //should probably use Map for this
@@ -125,12 +147,13 @@ extension MoviesListViewModel {
                 //clear current search data
                 self.clearSearchDataAndResults()
                 
-                self.lastSearchTextSubmitted = searchText
+                self.previousSearchTextSubmitted = self.searchTextSubmitted
+                self.searchTextSubmitted = searchText
                 
-                print("obtained \(movieSearchResults.totalResults) movie search results")
-                print("for page \(movieSearchResults.page) of \(movieSearchResults.totalPages) total pages")
-                print("movie search results 'results' array containing >= 0 movie from search instances:")
-                print("\(movieSearchResults.results)")
+//                print("obtained \(movieSearchResults.totalResults) movie search results")
+//                print("for page \(movieSearchResults.page) of \(movieSearchResults.totalPages) total pages")
+//                print("movie search results 'results' array containing >= 0 movie from search instances:")
+//                print("\(movieSearchResults.results)")
                 
                 self.movieSearchData = movieSearchResults
                 

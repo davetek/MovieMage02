@@ -62,7 +62,6 @@ extension MovieFromSearchViewModel {
              switch results {
              case .success(let data):
                  if let image = Image(data: data) {
-                    print("image created for poster path: \(posterPath)")
                     self.retrievedPosterImage = image
                      completionHandler(.success(image))
                  }

@@ -86,6 +86,13 @@ extension MoviesListViewController: UISearchBarDelegate {
             switch results {
             case .success(let numberOfResults):
                 
+                //if a search was previously submitted, clear the table b4 populating w/new data
+                if self.viewModel.previousSearchText != nil {
+                    self.viewModel.copyAndClearMoviesWithImagesList()
+                    self.tableView.reloadData()
+                    self.viewModel.restoreMoviesWithImagesListFromCopy()
+                }
+                
                 print("successful search: retrieved \(numberOfResults) movies")
                 print("number of movies in movies list for view: \(self.viewModel.moviesWithImageData.count)")
                 let firstIndex = self.tableView.numberOfRows(inSection: 0)
@@ -106,7 +113,6 @@ extension MoviesListViewController: UISearchBarDelegate {
                     
                     switch results {
                     case .success(let index):
-                        print("success case for getAndSetImage...")
                         let indexPath = IndexPath(row: index, section: 0)
                         self.tableView.reloadRows(at: [indexPath], with: .none)
                     case .failure(.errorNoImagePath(let errorMsg)):
