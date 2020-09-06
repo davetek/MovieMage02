@@ -73,6 +73,10 @@ extension MoviesListViewController: UISearchBarDelegate {
             return
         }
         
+        guard searchText != viewModel.searchText else {
+            return
+        }
+        
         searchBar.resignFirstResponder()
         viewModel.searchForMovies(matching: searchText, page: 1) { [weak self]
             (results) in
@@ -141,7 +145,7 @@ extension MoviesListViewController: UITableViewDataSource, UITableViewDelegate {
         cell.movieTitleLabel.text = movieViewModel.title
         if let posterImage = movieViewModel.posterImage {
             cell.moviePosterImageView.image = posterImage
-        } 
+        }
         
         
         return cell

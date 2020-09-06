@@ -24,6 +24,7 @@ class MoviesListViewModel {
     var networkManager: NetworkManager
     private var movieSearchData: MovieSearchData
     private var moviesFromSearchWithImages: [MovieFromSearchViewModel]
+    private var lastSearchTextSubmitted: String?
     
     init(networkMgr: NetworkManager) {
         networkManager = networkMgr
@@ -35,6 +36,11 @@ class MoviesListViewModel {
 extension MoviesListViewModel {
     //properties to be accessed by view controller
     //properties to be supplied by
+    
+    var searchText: String? {
+        return lastSearchTextSubmitted
+    }
+    
     var page: Int {
         return movieSearchData.page
     }
@@ -118,6 +124,8 @@ extension MoviesListViewModel {
                 }
                 //clear current search data
                 self.clearSearchDataAndResults()
+                
+                self.lastSearchTextSubmitted = searchText
                 
                 print("obtained \(movieSearchResults.totalResults) movie search results")
                 print("for page \(movieSearchResults.page) of \(movieSearchResults.totalPages) total pages")
