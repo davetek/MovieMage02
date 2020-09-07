@@ -22,7 +22,7 @@ class MoviesListViewController: UIViewController {
     @IBOutlet weak var searchBar: UISearchBar!
     
     @IBOutlet weak var tableView: UITableView!
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -31,41 +31,39 @@ class MoviesListViewController: UIViewController {
         searchBar.delegate = self
         tableView.dataSource = self
         tableView.delegate = self
-
+        
         //move these functions to MovieDetailsViewController
         
-//        viewModel.getMovie(withId: 767) { (results) in
-//            switch results {
-//            case .success(let idForRetrievedMovie):
-//                print("successfully retrieved data for movie \(idForRetrievedMovie)")
-//            case .failure(let movieDetailsError):
-//                switch movieDetailsError {
-//                case .errorRetrievingResults(let errorMsg):
-//                    print(errorMsg)
-//                }
-//            }
-//        }
-//
-//        viewModel.getCredits(forMovieId: 767) { (results) in
-//            switch results {
-//            case .success(let castArray):
-//                print("successfully retrieved \(castArray.count) cast members")
-//
-//            case .failure(let movieCreditsError):
-//                switch movieCreditsError {
-//                case .errorRetrievingResults(let errorMsg):
-//                    print(errorMsg)
-//                case .errorEmptyCastList(let errorMsg):
-//                    print(errorMsg)
-//                }
-//            }
-//        }
+        //        viewModel.getMovie(withId: 767) { (results) in
+        //            switch results {
+        //            case .success(let idForRetrievedMovie):
+        //                print("successfully retrieved data for movie \(idForRetrievedMovie)")
+        //            case .failure(let movieDetailsError):
+        //                switch movieDetailsError {
+        //                case .errorRetrievingResults(let errorMsg):
+        //                    print(errorMsg)
+        //                }
+        //            }
+        //        }
+        //
+        //        viewModel.getCredits(forMovieId: 767) { (results) in
+        //            switch results {
+        //            case .success(let castArray):
+        //                print("successfully retrieved \(castArray.count) cast members")
+        //
+        //            case .failure(let movieCreditsError):
+        //                switch movieCreditsError {
+        //                case .errorRetrievingResults(let errorMsg):
+        //                    print(errorMsg)
+        //                case .errorEmptyCastList(let errorMsg):
+        //                    print(errorMsg)
+        //                }
+        //            }
+        //        }
     }
-}
-
-extension MoviesListViewController: UISearchBarDelegate {
     
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+    func searchForMovies(onPage page: Int = 1) {
+        
         guard let searchText = searchBar.text else {
             let alert = UIAlertController(title: "Cut!", message: "Please enter your search terms and try again", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
@@ -78,7 +76,7 @@ extension MoviesListViewController: UISearchBarDelegate {
         }
         
         searchBar.resignFirstResponder()
-        viewModel.searchForMovies(matching: searchText, page: 1) { [weak self]
+        viewModel.searchForMovies(matching: searchText, page: page) { [weak self]
             (results) in
             guard let self = self else {
                 return
@@ -100,7 +98,7 @@ extension MoviesListViewController: UISearchBarDelegate {
                 print("number of results: \(numberOfResults)")
                 let resultsCount = self.viewModel.results.count
                 print("results count: \(resultsCount)")
-
+                
                 let indexPaths = (firstIndex..<firstIndex + resultsCount).map { (index) in
                     return IndexPath(row: index, section: 0)
                 }
@@ -123,7 +121,6 @@ extension MoviesListViewController: UISearchBarDelegate {
                         print(errorMsg)
                     }
                 }
-//                self.tableView.reloadData()
                 
             case .failure(let viewModelError):
                 switch viewModelError {
@@ -134,6 +131,13 @@ extension MoviesListViewController: UISearchBarDelegate {
                 }
             }
         }
+    }
+}
+
+extension MoviesListViewController: UISearchBarDelegate {
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchForMovies()
     }
 }
 
