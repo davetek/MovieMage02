@@ -123,7 +123,7 @@ extension MoviesListViewController: UISearchBarDelegate {
                         print(errorMsg)
                     }
                 }
-                self.tableView.reloadData()
+//                self.tableView.reloadData()
                 
             case .failure(let viewModelError):
                 switch viewModelError {
