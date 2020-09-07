@@ -15,7 +15,7 @@ class MoviesListViewModel {
         case emptyResults(String)
     }
     
-    enum GetImageDataForEachMovieInListError: Error {
+    enum GetImagesForMoviesError: Error {
         case errorNoMoviesInList(String)
         case errorNoImagePath(String)
         case errorGettingImageDataForImagePath(String)
@@ -23,109 +23,148 @@ class MoviesListViewModel {
     
     var networkManager: NetworkManager
     private var movieSearchData: MovieSearchData
+    private var moviesFromSearchWithImages: [MovieFromSearchViewModel]
+    private var moviesFromSearchWithImagesTempCopy: [MovieFromSearchViewModel]
+    private var previousSearchTextSubmitted: String?
+    private var searchTextSubmitted: String?
     
     init(networkMgr: NetworkManager) {
         networkManager = networkMgr
-        movieSearchData = MovieSearchData(page: 0, totalResults: 0, totalPages: 0, results: [])
+        movieSearchData = MovieSearchData(page: 0, totalResults: 0, totalPages: 0, results: [MovieFromSearch]())
+        moviesFromSearchWithImages = [MovieFromSearchViewModel]()
+        moviesFromSearchWithImagesTempCopy = [MovieFromSearchViewModel]()
+        previousSearchTextSubmitted = nil
+        searchTextSubmitted = nil
     }
 }
 
 extension MoviesListViewModel {
     //properties to be accessed by view controller
     //properties to be supplied by
+    
+    var previousSearchText: String? {
+        return previousSearchTextSubmitted
+    }
+    
+    var searchText: String? {
+        return searchTextSubmitted
+    }
+    
     var page: Int {
         return movieSearchData.page
     }
+    
     var totalResults: Int {
         return movieSearchData.totalResults
     }
+    
     var totalPages: Int {
         return movieSearchData.totalPages
     }
-    var results: [MovieFromSearch] {
+    var
+    results: [MovieFromSearch] {
         return movieSearchData.results
     }
-    var moviesWithImageData: [MovieFromSearchWImageData] {
-        return makeMoviesListForViewFromSearchResults(using: results)
+    
+    var moviesWithImageData: [MovieFromSearchViewModel] {
+        return moviesFromSearchWithImages
     }
 }
 
 extension MoviesListViewModel {
     //functions to be used by view controller
     
-    func makeMoviesListForViewFromSearchResults(using moviesFromSearch: [MovieFromSearch]) -> [MovieFromSearchWImageData] {
+    func getAndSetImageForEachMovie(completionHandler: @escaping (Result<Int, GetImagesForMoviesError>) -> Void) {
+        
+        guard moviesWithImageData.count > 0 else {
+            completionHandler(.failure(.errorNoMoviesInList("No movies in list")))
+            return
+        }
+        
+        for movie in moviesWithImageData.enumerated() {
+            
+            movie.element.getImage { (results) in
+                switch results {
+                case .success(_):
+                    completionHandler(.success(movie.offset))
+                case .failure(let error):
+                    switch error {
+                    case .errorNoImagePath(let errorMsg):
+                        print(errorMsg)
+                    case .errorGettingImageDataForImagePath(let errorMsg):
+                        print(errorMsg)
+                    }
+                }
+            }
+        }
+    }
+    
+    func clearSearchDataAndResults () {
+        movieSearchData = MovieSearchData(page: 0, totalResults: 0, totalPages: 0, results: [MovieFromSearch]())
+    }
+    
+    func clearMoviesWithWithImagesList() {
+        moviesFromSearchWithImages = [MovieFromSearchViewModel]()
+    }
+    
+    func copyAndClearMoviesWithImagesList() {
+        moviesFromSearchWithImagesTempCopy = moviesFromSearchWithImages
+        moviesFromSearchWithImages = [MovieFromSearchViewModel]()
+    }
+    
+    func restoreMoviesWithImagesListFromCopy() {
+        moviesFromSearchWithImages = moviesFromSearchWithImagesTempCopy
+    }
+    
+    func makeMoviesListForViewFromSearchResults(using moviesFromSearch: [MovieFromSearch]) -> Void {
         //function guaranteed to return array of structs
         //should probably use Map for this
         
-        var moviesListForView: [MovieFromSearchWImageData] = []
+        var moviesListForView: [MovieFromSearchViewModel] = []
         
         if moviesFromSearch.count > 0 {
             for movie in moviesFromSearch {
-                let movieForView = MovieFromSearchWImageData(id: movie.id, posterPath: movie.posterPath, posterImageData: nil, releaseDate: movie.releaseDate, title: movie.title)
+                let movieForView = MovieFromSearchViewModel(networkMgr: networkManager, movieFromSearchModel: movie)
+                
                 moviesListForView.append(movieForView)
             }
         }
-        return moviesListForView
+        moviesFromSearchWithImages.append(contentsOf: moviesListForView)
     }
     
-//    func getAndSetPosterImageDataForEachMovie(inMovieList moviesList: inout [MovieFromSearchWImageData], completionHandler: @escaping (Result<Int, GetImageDataForEachMovieInListError>) -> Void) {
-//        //function guaranteed to return array of structs
-//
-//        //for each struct, call getImageData network function to get the image data
-//        // if successful, set the image data for the posterImageData property
-//        // if this fails, set the posterImageData property to nil
-//
-//        if moviesList.count > 0 {
-//            for i in moviesList.indices {
-//                if let imagePath = moviesList[i].posterPath {
-//                    networkManager.getPosterImageData(forImagePath: imagePath, size: .w185) { (results) in
-//                        switch results {
-//                        case .success(let data):
-//                            moviesList[i].posterImageData = data
-//                            print("successfully retrieved image data for image at path: \(imagePath)")
-//                            let index = i
-//                            completionHandler(.success(i))
-//                        case .failure(let networkError):
-//                            switch networkError {
-//                            case .errorNoResponse(let errorDescription):
-//                                let errorMsg = "Error: \(errorDescription)"
-//                                completionHandler(.failure(.errorGettingImageDataForImagePath(errorMsg)))
-//                            case .errorWithResponse(let statusCode, let statusDescription):
-//                                let errorMsg = "Error: status code \(statusCode): \(statusDescription)"
-//                                completionHandler(.failure(.errorGettingImageDataForImagePath(errorMsg)))
-//                            case .errorNoDataWithResponse(let statusCode, let statusDescription):
-//                                let errorMsg = "Error with no data: status code \(statusCode): \(statusDescription)"
-//                                completionHandler(.failure(.errorGettingImageDataForImagePath(errorMsg)))
-//                            case .errorCouldNotDecodeData(let dataText):
-//                                let errorMsg = "Error: could not decode data received: \(dataText)"
-//                                completionHandler(.failure(.errorGettingImageDataForImagePath(errorMsg)))
-//                            }
-//                        }
-//                    }
-//                } else {
-//                    completionHandler(.failure(.errorNoImagePath("This movie has no poster image")))
-//                }
-//            }
-//        } else {
-//            completionHandler(.failure(.errorNoMoviesInList("Did not retrieve any images because movies list is empty")))
-//        }
-//    }
-    
+ 
     //passes number of movies retrieved to completion handler if successful; passes custom error if not
     func searchForMovies(matching searchText: String, page: Int, completionHandler: @escaping (Result<Int, MoviesListError>) -> Void) {
         
-        networkManager.search(for: .movies, matching: searchText, page: page) { (results) in
+        networkManager.search(for: .movies, matching: searchText, page: page) { [weak self](results) in
+            
+            guard let self = self else {
+                return
+            }
+            
             switch results {
             case .success(let movieSearchResults):
                 guard movieSearchResults.results.count > 0 else {
                     completionHandler(.failure(.emptyResults("Sorry, we couldn't find any movies matching your search terms")))
                     return
                 }
-                print("obtained \(movieSearchResults.totalResults) movie search results")
-                print("for page \(movieSearchResults.page) of \(movieSearchResults.totalPages) total pages")
-                print("movie search results 'results' array containing >= 0 movie from search instances:")
-                print("\(movieSearchResults.results)")
+                //clear current search data
+                self.clearSearchDataAndResults()
+                
+                self.previousSearchTextSubmitted = self.searchTextSubmitted
+                self.searchTextSubmitted = searchText
+                
+                
                 self.movieSearchData = movieSearchResults
+                
+                //if this is a new search, clear the data source for the table view
+                if page == 1 {
+                    self.clearMoviesWithWithImagesList()
+                }
+                
+                //create the array of movie view models for use by the view controller
+                self.makeMoviesListForViewFromSearchResults(using: self.movieSearchData.results)
+
                 completionHandler(.success(movieSearchResults.totalResults))
             case .failure(let networkError):
                 switch networkError {

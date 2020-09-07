@@ -157,7 +157,6 @@ class NetworkManager {
                 
                 let decoder = JSONDecoder()
                 
-                
                 do {
                     if let responseDataAsString = String(data: data, encoding: String.Encoding.utf8) {
                         print(responseDataAsString)
@@ -176,10 +175,8 @@ class NetworkManager {
                     }
                 }
             }
-            
             task.resume()
         }
-        
     }
     
     func getMovie(withId id: Int, completionHandler: @escaping (Result<Movie, NetworkError>) -> Void) {
@@ -278,7 +275,6 @@ class NetworkManager {
             print("could not form url from components")
             return
         }
-        print("url for movie poster image: \(url.absoluteString)")
         
         let sessionConfig = URLSessionConfiguration.default
         let urlSession = URLSession(configuration: sessionConfig)

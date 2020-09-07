@@ -10,22 +10,118 @@ import UIKit
 
 class MoviesListViewController: UIViewController {
     
+    //for use by the view model so it does not need to import UIKit
+    typealias Image = UIImage
+    
     //injected from SceneDelegate when scene is created at app launch
     var networkManager: NetworkManager!
     
     //instantiated in viewDidLoad()
     var viewModel: MoviesListViewModel!
-
+    
+    @IBOutlet weak var searchBar: UISearchBar!
+    
+    @IBOutlet weak var tableView: UITableView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         viewModel = MoviesListViewModel(networkMgr: networkManager)
-
-        viewModel.searchForMovies(matching: "harry potter", page: 1) { (results) in
+        
+        searchBar.delegate = self
+        tableView.dataSource = self
+        tableView.delegate = self
+        
+        //move these functions to MovieDetailsViewController
+        
+        //        viewModel.getMovie(withId: 767) { (results) in
+        //            switch results {
+        //            case .success(let idForRetrievedMovie):
+        //                print("successfully retrieved data for movie \(idForRetrievedMovie)")
+        //            case .failure(let movieDetailsError):
+        //                switch movieDetailsError {
+        //                case .errorRetrievingResults(let errorMsg):
+        //                    print(errorMsg)
+        //                }
+        //            }
+        //        }
+        //
+        //        viewModel.getCredits(forMovieId: 767) { (results) in
+        //            switch results {
+        //            case .success(let castArray):
+        //                print("successfully retrieved \(castArray.count) cast members")
+        //
+        //            case .failure(let movieCreditsError):
+        //                switch movieCreditsError {
+        //                case .errorRetrievingResults(let errorMsg):
+        //                    print(errorMsg)
+        //                case .errorEmptyCastList(let errorMsg):
+        //                    print(errorMsg)
+        //                }
+        //            }
+        //        }
+    }
+    
+    func searchForMovies(onPage page: Int = 1) {
+        
+        guard let searchText = searchBar.text else {
+            let alert = UIAlertController(title: "Cut!", message: "Please enter your search terms and try again", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            self.present(alert, animated: true)
+            return
+        }
+        
+        guard searchText != viewModel.searchText else {
+            return
+        }
+        
+        searchBar.resignFirstResponder()
+        viewModel.searchForMovies(matching: searchText, page: page) { [weak self]
+            (results) in
+            guard let self = self else {
+                return
+            }
             switch results {
             case .success(let numberOfResults):
+                
+                //if a search was previously submitted, clear the table b4 populating w/new data
+                if self.viewModel.previousSearchText != nil {
+                    self.viewModel.copyAndClearMoviesWithImagesList()
+                    self.tableView.reloadData()
+                    self.viewModel.restoreMoviesWithImagesListFromCopy()
+                }
+                
                 print("successful search: retrieved \(numberOfResults) movies")
                 print("number of movies in movies list for view: \(self.viewModel.moviesWithImageData.count)")
+                let firstIndex = self.tableView.numberOfRows(inSection: 0)
+                print("first index: \(firstIndex)")
+                print("number of results: \(numberOfResults)")
+                let resultsCount = self.viewModel.results.count
+                print("results count: \(resultsCount)")
+                
+                let indexPaths = (firstIndex..<firstIndex + resultsCount).map { (index) in
+                    return IndexPath(row: index, section: 0)
+                }
+                self.tableView.insertRows(at: indexPaths, with: .automatic)
+                
+                self.viewModel.getAndSetImageForEachMovie { [weak self](results) in
+                    guard let self = self else {
+                        return
+                    }
+                    
+                    switch results {
+                    case .success(let index):
+                        let indexPath = IndexPath(row: index, section: 0)
+                        self.tableView.reloadRows(at: [indexPath], with: .none)
+                    case .failure(.errorNoImagePath(let errorMsg)):
+                        print(errorMsg)
+                    case .failure(.errorGettingImageDataForImagePath(let errorMsg)):
+                        print(errorMsg)
+                    case .failure(.errorNoMoviesInList(let errorMsg)):
+                        print(errorMsg)
+                    }
+                }
+                
             case .failure(let viewModelError):
                 switch viewModelError {
                 case .emptyResults(let emptyResultsMessage):
@@ -35,34 +131,102 @@ class MoviesListViewController: UIViewController {
                 }
             }
         }
-        //move these functions to MovieDetailsViewController
-        
-//        viewModel.getMovie(withId: 767) { (results) in
-//            switch results {
-//            case .success(let idForRetrievedMovie):
-//                print("successfully retrieved data for movie \(idForRetrievedMovie)")
-//            case .failure(let movieDetailsError):
-//                switch movieDetailsError {
-//                case .errorRetrievingResults(let errorMsg):
-//                    print(errorMsg)
-//                }
-//            }
-//        }
-//
-//        viewModel.getCredits(forMovieId: 767) { (results) in
-//            switch results {
-//            case .success(let castArray):
-//                print("successfully retrieved \(castArray.count) cast members")
-//
-//            case .failure(let movieCreditsError):
-//                switch movieCreditsError {
-//                case .errorRetrievingResults(let errorMsg):
-//                    print(errorMsg)
-//                case .errorEmptyCastList(let errorMsg):
-//                    print(errorMsg)
-//                }
-//            }
-//        }
+    }
+    
+    func loadNextPageOfSearchForMovies(onPage page: Int) {
+         
+         guard let searchText = viewModel.searchText else {
+             return
+         }
+         
+         searchBar.resignFirstResponder()
+         viewModel.searchForMovies(matching: searchText, page: page) { [weak self]
+             (results) in
+             guard let self = self else {
+                 return
+             }
+             switch results {
+             case .success(let numberOfResults):
+                 
+                 print("successful search: retrieved \(numberOfResults) movies")
+                 print("number of movies in movies list for view: \(self.viewModel.moviesWithImageData.count)")
+                 let firstIndex = self.tableView.numberOfRows(inSection: 0)
+                 print("first index: \(firstIndex)")
+                 print("number of results: \(numberOfResults)")
+                 let resultsCount = self.viewModel.results.count
+                 print("results count: \(resultsCount)")
+                 
+                 let indexPaths = (firstIndex..<firstIndex + resultsCount).map { (index) in
+                     return IndexPath(row: index, section: 0)
+                 }
+                 self.tableView.insertRows(at: indexPaths, with: .automatic)
+                 
+                 self.viewModel.getAndSetImageForEachMovie { [weak self](results) in
+                     guard let self = self else {
+                         return
+                     }
+                     
+                     switch results {
+                     case .success(let index):
+                         let indexPath = IndexPath(row: index, section: 0)
+                         self.tableView.reloadRows(at: [indexPath], with: .none)
+                     case .failure(.errorNoImagePath(let errorMsg)):
+                         print(errorMsg)
+                     case .failure(.errorGettingImageDataForImagePath(let errorMsg)):
+                         print(errorMsg)
+                     case .failure(.errorNoMoviesInList(let errorMsg)):
+                         print(errorMsg)
+                     }
+                 }
+                 
+             case .failure(let viewModelError):
+                 switch viewModelError {
+                 case .emptyResults(let emptyResultsMessage):
+                     print(emptyResultsMessage)
+                 case .errorRetrievingResults(let retrievalErrorMessage):
+                     print(retrievalErrorMessage)
+                 }
+             }
+         }
+     }
+}
+
+extension MoviesListViewController: UISearchBarDelegate {
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchForMovies()
     }
 }
 
+extension MoviesListViewController: UITableViewDataSource, UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        viewModel.moviesWithImageData.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "MoviesListTableViewCell", for: indexPath) as! MoviesListTableViewCell
+        let movieViewModel = viewModel.moviesWithImageData[indexPath.row]
+        
+        //populate cell
+        cell.movieTitleLabel.text = movieViewModel.title
+        if let posterImage = movieViewModel.posterImage {
+            cell.moviePosterImageView.image = posterImage
+        }
+        
+        if indexPath.row == tableView.numberOfRows(inSection: 0) - 2 {
+            let nextPage = viewModel.page + 1
+            loadNextPageOfSearchForMovies(onPage: nextPage)
+        }
+        
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return UITableView.automaticDimension
+    }
+    
+    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 158
+    }
+}
