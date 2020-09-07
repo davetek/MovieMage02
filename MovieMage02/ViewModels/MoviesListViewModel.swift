@@ -103,6 +103,10 @@ extension MoviesListViewModel {
         movieSearchData = MovieSearchData(page: 0, totalResults: 0, totalPages: 0, results: [MovieFromSearch]())
     }
     
+    func clearMoviesWithWithImagesList() {
+        moviesFromSearchWithImages = [MovieFromSearchViewModel]()
+    }
+    
     func copyAndClearMoviesWithImagesList() {
         moviesFromSearchWithImagesTempCopy = moviesFromSearchWithImages
         moviesFromSearchWithImages = [MovieFromSearchViewModel]()
@@ -125,7 +129,7 @@ extension MoviesListViewModel {
                 moviesListForView.append(movieForView)
             }
         }
-        moviesFromSearchWithImages = moviesListForView
+        moviesFromSearchWithImages.append(contentsOf: moviesListForView)
     }
     
  
@@ -150,12 +154,13 @@ extension MoviesListViewModel {
                 self.previousSearchTextSubmitted = self.searchTextSubmitted
                 self.searchTextSubmitted = searchText
                 
-//                print("obtained \(movieSearchResults.totalResults) movie search results")
-//                print("for page \(movieSearchResults.page) of \(movieSearchResults.totalPages) total pages")
-//                print("movie search results 'results' array containing >= 0 movie from search instances:")
-//                print("\(movieSearchResults.results)")
                 
                 self.movieSearchData = movieSearchResults
+                
+                //if this is a new search, clear the data source for the table view
+                if page == 1 {
+                    self.clearMoviesWithWithImagesList()
+                }
                 
                 //create the array of movie view models for use by the view controller
                 self.makeMoviesListForViewFromSearchResults(using: self.movieSearchData.results)

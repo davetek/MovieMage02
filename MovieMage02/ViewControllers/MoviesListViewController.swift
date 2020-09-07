@@ -132,6 +132,63 @@ class MoviesListViewController: UIViewController {
             }
         }
     }
+    
+    func loadNextPageOfSearchForMovies(onPage page: Int) {
+         
+         guard let searchText = viewModel.searchText else {
+             return
+         }
+         
+         searchBar.resignFirstResponder()
+         viewModel.searchForMovies(matching: searchText, page: page) { [weak self]
+             (results) in
+             guard let self = self else {
+                 return
+             }
+             switch results {
+             case .success(let numberOfResults):
+                 
+                 print("successful search: retrieved \(numberOfResults) movies")
+                 print("number of movies in movies list for view: \(self.viewModel.moviesWithImageData.count)")
+                 let firstIndex = self.tableView.numberOfRows(inSection: 0)
+                 print("first index: \(firstIndex)")
+                 print("number of results: \(numberOfResults)")
+                 let resultsCount = self.viewModel.results.count
+                 print("results count: \(resultsCount)")
+                 
+                 let indexPaths = (firstIndex..<firstIndex + resultsCount).map { (index) in
+                     return IndexPath(row: index, section: 0)
+                 }
+                 self.tableView.insertRows(at: indexPaths, with: .automatic)
+                 
+                 self.viewModel.getAndSetImageForEachMovie { [weak self](results) in
+                     guard let self = self else {
+                         return
+                     }
+                     
+                     switch results {
+                     case .success(let index):
+                         let indexPath = IndexPath(row: index, section: 0)
+                         self.tableView.reloadRows(at: [indexPath], with: .none)
+                     case .failure(.errorNoImagePath(let errorMsg)):
+                         print(errorMsg)
+                     case .failure(.errorGettingImageDataForImagePath(let errorMsg)):
+                         print(errorMsg)
+                     case .failure(.errorNoMoviesInList(let errorMsg)):
+                         print(errorMsg)
+                     }
+                 }
+                 
+             case .failure(let viewModelError):
+                 switch viewModelError {
+                 case .emptyResults(let emptyResultsMessage):
+                     print(emptyResultsMessage)
+                 case .errorRetrievingResults(let retrievalErrorMessage):
+                     print(retrievalErrorMessage)
+                 }
+             }
+         }
+     }
 }
 
 extension MoviesListViewController: UISearchBarDelegate {
@@ -157,6 +214,10 @@ extension MoviesListViewController: UITableViewDataSource, UITableViewDelegate {
             cell.moviePosterImageView.image = posterImage
         }
         
+        if indexPath.row == tableView.numberOfRows(inSection: 0) - 2 {
+            let nextPage = viewModel.page + 1
+            loadNextPageOfSearchForMovies(onPage: nextPage)
+        }
         
         return cell
     }
